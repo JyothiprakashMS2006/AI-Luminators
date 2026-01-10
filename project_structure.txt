@@ -1,0 +1,71 @@
+# Project Structure & File Manifest
+
+## Root Directory
+- **.gitignore**: Specifies files and directories that Git should ignore (e.g., node_modules, logs, build artifacts).
+- **README.md**: Documentation for the project setup and usage.
+- **eslint.config.js**: Configuration for ESLint to ensure code quality and consistent styling.
+- **index.html**: The main HTML entry point. Vite injects the bundled React code here.
+- **package.json**: Defines the project metadata, dependencies, and scripts (dev, build, server).
+- **package-lock.json**: Locks the exact versions of dependencies for consistent installs.
+- **vite.config.js**: Configuration for Vite (build tool), defining plugins like `react()`.
+
+## Server Directory (server/)
+- **server.js**: The main entry point for the backend. Sets up the Express server, middleware, and routes.
+- **controllers/agentController.js**: Contains the business logic for the AI agents. It handles message parsing, language detection, and response generation/Streaming.
+
+## Source Directory (src/)
+- **main.jsx**: The React entry point. It finds the root DOM element and renders the `App` component.
+- **App.jsx**: The root React component. Sets up the Router and main layout structure.
+- **App.css**: Global styles for the `App` component.
+- **index.css**: Global base styles (resets, fonts).
+
+### API (src/api/)
+- **chatService.js**: Contains the `streamChatResponse` function. Handles the network request to the backend and reading the stream.
+
+### Components (src/components/)
+- **AuthCard.jsx**: The card component used for Login and Signup forms.
+- **AuthCard.css**: Styling for the AuthCard.
+- **ChatWindow.jsx**: The main chat view. Renders the list of messages and the input area.
+- **ChatInterface.css**: Styling for the entire chat layout (Sidebar, ChatWindow, Input).
+- **LoginForm.jsx**: Component for the user login form.
+- **ModeSelection.jsx**: Component for the dashboard where users select Debugger, Optimizer, or Evaluator.
+- **ModeSelection.css**: Styling for the Mode Selection page.
+- **Sidebar.jsx**: The left sidebar navigation in the chat view (History, New Chat).
+- **SignupForm.jsx**: Component for the user registration form.
+- **TopNav.jsx**: The top navigation bar in the chat view (User Profile, Mode Indicator).
+
+### Pages (src/pages/)
+- **ChatPage.jsx**: The logic container for the chat view. Connects the Sidebar, TopNav, and ChatWindow, and manages the chat state.
+
+### Assets (src/assets/)
+- **background.jpg**: Background image used for the Login/Signup pages.
+- **mode_bg.jpg**: Background image used for the Mode Selection page.
+
+---
+
+## .gitignore Content
+```
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+```

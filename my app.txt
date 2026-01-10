@@ -1,0 +1,163 @@
+# My App - Technical Documentation
+
+## 1. Architecture Overview
+This application is a modern AI-powered Chat Agent platform built with a clear separation of concerns:
+- **Frontend**: A React Single Page Application (SPA) built with Vite, handling UI/UX, state management, and real-time streaming updates.
+- **Backend**: A Node.js/Express server that manages API requests, simulates AI logic (Debugger/Optimizer/Evaluator), and handles file uploads.
+
+### Core Technologies
+- **Frontend**: React 19, Vite, React Router 7, Lucide React (Icons), React Markdown.
+- **Backend**: Node.js, Express 5, Cors, Multer (File Uploads).
+- **Styling**: Vanilla CSS with CSS Variables for theming (Glassmorphism design).
+
+---
+
+## 2. Technical Dependencies
+(Extracted from package.json)
+
+### Production Dependencies
+- **react / react-dom**: Core UI library.
+- **react-router-dom**: Client-side routing.
+- **express**: Backend web framework.
+- **cors**: Middleware to enable Cross-Origin Resource Sharing.
+- **multer**: Middleware for handling `multipart/form-data` (file uploads).
+- **react-markdown**: For rendering AI responses with code blocks.
+- **lucide-react**: Icon set.
+- **dotenv**: Environment variable management.
+
+### Development Dependencies
+- **vite**: Build tool and dev server.
+- **eslint**: Code linting.
+
+---
+
+## 3. Backend Implementation
+
+### Server Entry Point (`server/server.js`)
+Initializes the Express app, configures CORS, sets up file upload storage (in-memory), and defines the main API route.
+
+```javascript
+import express from 'express';
+import cors from 'cors';
+import multer from 'multer';
+import { handleChat } from './controllers/agentController.js';
+
+const app = express();
+const port = 3000;
+
+app.use(cors());
+app.use(express.json());
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.post('/api/chat', upload.array('files'), handleChat);
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date() });
+});
+
+app.listen(port, () => {
+    console.log(`Chat Agent Server running on port ${port}`);
+});
+```
+
+### Agent Controller (`server/controllers/agentController.js`)
+Contains the core logic for the AI simulation. It:
+1.  **Validates** the requested mode.
+2.  **Detects Language** (Python vs JS) to give relevant code fixes.
+3.  **Streams** the response chunk-by-chunk to simulate typing.
+4.  **Generates Responses** based on strict personas (Debugger, Optimizer, Evaluator).
+
+Core Logic Snippet:
+```javascript
+// ... imports and setup ...
+
+const handleChat = async (req, res) => {
+    const { mode } = req.body;
+    // ... input parsing ...
+
+    // Set SSE Headers for Streaming
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Generate specific response based on mode
+    let fullResponse = generateSimulatedResponse(mode, lastUserMessage, files);
+
+    // Stream output
+    const chunks = fullResponse.split(' ');
+    for (const chunk of chunks) {
+        res.write(chunk + " ");
+        await new Promise(resolve => setTimeout(resolve, 50)); // Sim delay
+    }
+    res.end();
+};
+
+function generateDebuggerResponse(input) {
+    const lang = detectLanguage(input);
+    // ... logic to return fixed code block ...
+    return `### 🐞 Debug Report... \`\`\`${lang}\n${fixedCode}\n\`\`\` ...`;
+}
+```
+
+---
+
+## 4. Frontend Implementation
+
+### Chat Service (`src/api/chatService.js`)
+Service layer responsible for communicating with the backend using the Fetch API and ReadableStreams.
+
+```javascript
+const API_URL = 'http://localhost:3000/api/chat';
+
+export const streamChatResponse = async (mode, messages, files = [], onChunk, onComplete) => {
+    const formData = new FormData();
+    formData.append('mode', mode);
+    formData.append('messages', JSON.stringify(messages));
+    files.forEach(f => formData.append('files', f));
+
+    const response = await fetch(API_URL, { method: 'POST', body: formData });
+    
+    // Read the stream
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        onChunk(chunk); // Update UI incrementally
+    }
+    if (onComplete) onComplete();
+};
+```
+
+### Chat Page (`src/pages/ChatPage.jsx`)
+The main container component.
+- **State**: Manages `messages`, `history`, and `files`.
+- **Effect**: Resets chat when switching modes.
+- **Action**: Handles sending messages using `streamChatResponse` and updates the UI optimistically.
+
+### Chat Window (`src/components/ChatWindow.jsx`)
+The presentation component for the chat interface.
+- **Rendering**: Uses `ReactMarkdown` to render rich text and code blocks.
+- **Input**: Features an auto-expanding textarea that grows with content (up to ~10 lines).
+- **UX**: Handles `Ctrl+Enter` to send and auto-scrolls to the newest message.
+
+```javascript
+// Auto-expand logic
+useEffect(() => {
+    if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+        textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 240)}px`;
+    }
+}, [input]);
+```
+
+---
+
+## 5. How It Works Together
+1.  **User Interaction**: User selects a mode (e.g., Debugger) and types code in `ChatPage`.
+2.  **Request**: Frontend sends a POST request with the code and mode to `http://localhost:3000/api/chat`.
+3.  **Processing**: Server receives the request, identifies the code language (e.g., Python), and generates a "Fixed Code" response template.
+4.  **Streaming**: Server sends the response text back in small chunks.
+5.  **Display**: Frontend receives chunks in real-time and appends them to the current message, creating a typing effect.
