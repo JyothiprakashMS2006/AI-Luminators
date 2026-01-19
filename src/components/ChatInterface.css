@@ -165,10 +165,7 @@
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     display: none;
     flex-direction: column;
-}
-
-.profile-menu:hover .dropdown-menu {
-    display: flex;
+    z-index: 1000;
 }
 
 .dropdown-item {
