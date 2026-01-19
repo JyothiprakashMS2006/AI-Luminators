@@ -63,6 +63,30 @@
     position: relative;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    /* Chain Entry (run once) then Idle (loop) */
+    /* NOTE: Idle Float will delay start until after entry */
+    animation-fill-mode: backwards;
+}
+
+/* Stagger floats for premium feel */
+/* Stagger floats for premium feel */
+/* 1. Debugger: From Left - Instant start */
+.mode-card:nth-child(1) {
+    animation: enterFromLeft 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0s both,
+        idleFloat 6s ease-in-out infinite 0.8s;
+}
+
+/* 2. Optimizer: From Bottom - Very slight delay */
+.mode-card:nth-child(2) {
+    animation: enterFromBottom 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both,
+        idleFloat 6s ease-in-out infinite 0.9s;
+}
+
+/* 3. Evaluator: From Right - Slight delay after Optimizer */
+.mode-card:nth-child(3) {
+    animation: enterFromRight 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both,
+        idleFloat 6s ease-in-out infinite 1.0s;
 }
 
 .mode-card::before {
@@ -76,12 +100,42 @@
     opacity: 0.7;
 }
 
+/* Glare Effect Element */
+.mode-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.08) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    transform: skewX(-20deg);
+    pointer-events: none;
+    transition: none;
+}
+
 .mode-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--accent-color);
-    /* Glow with accent color */
-    box-shadow: 0 0 25px var(--accent-color), 0 15px 35px rgba(0, 0, 0, 0.4);
+    /* 1. Floating Effect: Subtle vertical movement */
+    transform: translateY(-6px);
+
+    /* 2. Soft Shadow Effect: Low contrast, depth, no neon glow */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+
+    background: rgba(255, 255, 255, 0.08);
+    /* Slightly lighter background */
+    border-color: rgba(255, 255, 255, 0.3);
+    /* Subtle border highlight */
+    animation-play-state: paused;
+    /* Pause idle float on hover */
+}
+
+/* 3. Glare Animation on Hover */
+.mode-card:hover::after {
+    left: 150%;
+    transition: left 0.7s ease-in-out;
 }
 
 .mode-icon-wrapper {
@@ -96,9 +150,10 @@
     transition: all 0.3s ease;
 }
 
+/* Minimal icon hover - keeping it subtle */
 .mode-card:hover .mode-icon-wrapper {
-    background: rgba(255, 255, 255, 0.15);
-    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
 }
 
 .mode-icon {
@@ -130,6 +185,54 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes idleFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes enterFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes enterFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes enterFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
     }
 }
 

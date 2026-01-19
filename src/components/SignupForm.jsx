@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 
 const SignupForm = ({ onSwitch }) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -10,23 +13,35 @@ const SignupForm = ({ onSwitch }) => {
         setError(''); // clear error on change
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (formData.password !== formData.confirmPassword) {
             setError("Passwords do not match");
             return;
         }
-        // Simulated signup success
-        // In a real app, this would be an API call
-        // For UI demo, we simulate a delay then switch
-        setTimeout(() => {
-            // Save to local storage for demo purposes
-            localStorage.setItem('username', formData.fullName);
-            localStorage.setItem('userEmail', formData.email);
 
-            alert("Account created successfully! Please login.");
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+            const user = userCredential.user;
+
+            // Update Auth Profile
+            await updateProfile(user, {
+                displayName: formData.fullName
+            });
+
+            // Store user data in Firestore
+            await setDoc(doc(db, "users", user.uid), {
+                fullName: formData.fullName,
+                email: formData.email,
+                createdAt: new Date()
+            });
+
+            alert("Account created successfully!");
             onSwitch();
-        }, 500);
+        } catch (err) {
+            console.error("Signup Error:", err);
+            setError(err.message);
+        }
     };
 
     return (

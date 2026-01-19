@@ -31,6 +31,8 @@
     padding: 20px;
     transition: width 0.3s ease;
     z-index: 10;
+    animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Slide in from left */
 }
 
 .sidebar.collapsed {
@@ -273,6 +275,8 @@
     align-items: flex-end;
     gap: 10px;
     transition: border-color 0.3s;
+    animation: popUpBottom 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+    /* Pop up from bottom with delay */
 }
 
 .input-container:focus-within {
@@ -340,6 +344,30 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes popUpBottom {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 

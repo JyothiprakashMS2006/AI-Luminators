@@ -11,6 +11,18 @@ Currently, two official plugins are available:
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
+## Firebase Migration
+
+This project has been migrated to a Serverless architecture using Firebase.
+- **Authentication**: Firebase Auth (Email/Password)
+- **Database**: Firestore
+- **AI Simulation**: Logic ported to client-side (`src/api/chatService.js`) to remove Node.js backend dependency.
+
+### Setup
+1. Ensure `src/firebase.js` has valid configuration.
+2. Run `npm install`.
+3. Run `npm run dev`.
+
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
